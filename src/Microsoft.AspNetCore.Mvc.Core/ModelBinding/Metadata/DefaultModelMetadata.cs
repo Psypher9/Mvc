@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
@@ -29,6 +31,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
         private bool? _isRequired;
         private ModelPropertyCollection _properties;
         private bool? _validateChildren;
+        private bool? _isValidationRequired;
         private ReadOnlyCollection<object> _validatorMetadata;
 
         /// <summary>
@@ -424,6 +427,94 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 }
 
                 return _validateChildren.Value;
+            }
+        }
+
+        /// <inheritdoc />
+        public override bool IsValidationRequired
+        {
+            get
+            {
+                if (!_isValidationRequired.HasValue)
+                {
+                    CalculateIsValidationRequired();
+                }
+
+                Debug.Assert(_isValidationRequired.HasValue);
+                return _isValidationRequired.Value;
+            }
+        }
+
+        private void CalculateIsValidationRequired()
+        {
+            var visited = new HashSet<ModelMetadata>();
+
+            if (TryVisit(this, out var requiresValidation))
+            {
+                _isValidationRequired = requiresValidation;
+            }
+            else
+            {
+                // Assume true by default.
+                _isValidationRequired = true;
+            }
+
+            bool TryVisit(ModelMetadata metadata, out bool result)
+            {
+                RuntimeHelpers.EnsureSufficientExecutionStack();
+
+                if (!visited.Add(metadata))
+                {
+                    // A cycle. Return the value as is without attempting to calculate it now. We'll calculate it at a later point.
+                    result = default;
+                    return false;
+                }
+
+                if (!(metadata is DefaultModelMetadata defaultModelMetadata))
+                {
+                    // We cannot inspect this ModelMetadata. Assume it requires validation.
+                    result = true;
+                    return true;
+                }
+
+                if (defaultModelMetadata._isValidationRequired.HasValue)
+                {
+                    result = defaultModelMetadata._isValidationRequired.Value;
+                    return true;
+                }
+
+                if (defaultModelMetadata.ValidationMetadata.IsValidationRequired)
+                {
+                    result = true;
+                    defaultModelMetadata._isValidationRequired = true;
+                    return true;
+                }
+
+                // We have inspected the current element. Inspect properties or elements that may contribute to this value.
+                if (defaultModelMetadata.IsEnumerableType)
+                {
+                    if (TryVisit(defaultModelMetadata.ElementMetadata, out result) && result)
+                    {
+                        defaultModelMetadata._isValidationRequired = result;
+                        return true;
+                    }
+                }
+                else if (defaultModelMetadata.IsComplexType)
+                {
+                    foreach (var property in defaultModelMetadata.Properties)
+                    {
+                        if (TryVisit(property, out var propertyResult) && propertyResult)
+                        {
+                            defaultModelMetadata._isValidationRequired = propertyResult;
+                            result = propertyResult;
+                            return true;
+                        }
+                    }
+                }
+
+                result = false;
+                defaultModelMetadata._isValidationRequired = result;
+                return true;
             }
         }
 

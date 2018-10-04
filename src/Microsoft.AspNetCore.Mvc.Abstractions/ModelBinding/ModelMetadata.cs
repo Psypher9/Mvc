@@ -326,6 +326,18 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
         public abstract bool ValidateChildren { get; }
 
         /// <summary>
+        /// Gets a value that indicates if the model, or one of it's properties, or elements needs to
+        /// be validated.
+        /// </summary>
+        /// <value>
+        /// Defaults to <see langword="true"/>.
+        /// </value>
+        /// <remarks>
+        /// When <see langword="false"/>, validation can be skipped for the sub-graph of this model.
+        /// </remarks>
+        public virtual bool IsValidationRequired { get; } = true;
+
+        /// <summary>
         /// Gets a collection of metadata items for validators.
         /// </summary>
         public abstract IReadOnlyList<object> ValidatorMetadata { get; }

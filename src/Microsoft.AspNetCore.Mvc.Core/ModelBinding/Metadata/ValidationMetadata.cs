@@ -41,5 +41,13 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
         /// in this list, to be consumed later by an <see cref="Validation.IModelValidatorProvider"/>.
         /// </remarks>
         public IList<object> ValidatorMetadata { get; } = new List<object>();
+
+        /// <summary>
+        /// Gets a value that indicates if the model needs to be validated.
+        /// </summary>
+        /// <value>
+        /// Defaults to <see langword="true"/>.
+        /// </value>
+        public bool IsValidationRequired { get; set; } = true;
     }
 }

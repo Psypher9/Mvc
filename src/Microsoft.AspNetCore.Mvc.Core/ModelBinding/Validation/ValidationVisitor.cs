@@ -265,6 +265,20 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation
                 CurrentPath.Pop(model);
                 return true;
             }
+            else if (!metadata.IsValidationRequired)
+            {
+                var entries = ModelState.FindKeysWithPrefix(key);
+                foreach (var item in entries)
+                {
+                    if (item.Value.ValidationState == ModelValidationState.Unvalidated)
+                    {
+                        item.Value.ValidationState = ModelValidationState.Valid;
+                    }
+                }
+
+                CurrentPath.Pop(model);
+                return true;
+            }
 
             using (StateManager.Recurse(this, key ?? string.Empty, metadata, model, strategy))
             {

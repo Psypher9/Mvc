@@ -3,18 +3,20 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.DataAnnotations.Internal;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
-namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
+namespace Microsoft.AspNetCore.Mvc.DataAnnotations
 {
     /// <summary>
     /// An implementation of <see cref="IModelValidatorProvider"/> which provides validators
     /// for attributes which derive from <see cref="ValidationAttribute"/>. It also provides
     /// a validator for types which implement <see cref="IValidatableObject"/>.
     /// </summary>
-    public class DataAnnotationsModelValidatorProvider : IModelValidatorProvider
+    internal sealed class DataAnnotationsModelValidatorProvider : IDefaultModelValidatorProvider
     {
         private readonly IOptions<MvcDataAnnotationsLocalizationOptions> _options;
         private readonly IStringLocalizerFactory _stringLocalizerFactory;
@@ -66,8 +68,7 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                     continue;
                 }
 
-                var attribute = validatorItem.ValidatorMetadata as ValidationAttribute;
-                if (attribute == null)
+                if (!(validatorItem.ValidatorMetadata is ValidationAttribute attribute))
                 {
                     continue;
                 }

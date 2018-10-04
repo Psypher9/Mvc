@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -1488,6 +1490,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTests
             public string Control { get; set; }
 
             [ValidateSometimes(nameof(Control))]
+            [Range(0, 10)]
             public int ControlLength => Control.Length;
         }
 
@@ -1836,6 +1839,59 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTests
         {
             [StringLength(5)]
             public string Message { get; set; }
+        }
+
+        [Fact]
+        public async Task Validation_NoAttributeInGraphOfObjects_WithDefaultValidatorProviders()
+        {
+            // Arrange
+            var parameterBinder = ModelBindingTestHelper.GetParameterBinder();
+            var parameter = new ParameterDescriptor()
+            {
+                Name = "parameter",
+                ParameterType = typeof(Order12),
+                BindingInfo = new BindingInfo
+                {
+                    BindingSource = BindingSource.Body
+                },
+            };
+
+            var input = new Order12
+            {
+                Id = 10,
+                OrderFile = new byte[40],
+            };
+
+            var testContext = ModelBindingTestHelper.GetTestContext(request =>
+            {
+                request.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(input)));
+                request.ContentType = "application/json";
+            });
+
+            var modelState = testContext.ModelState;
+
+            // Act
+            var modelBindingResult = await parameterBinder.BindModelAsync(parameter, testContext);
+
+            // Assert
+            Assert.True(modelBindingResult.IsModelSet);
+
+            var model = Assert.IsType<Order12>(modelBindingResult.Model);
+            Assert.Equal(input.Id, model.Id);
+            Assert.Equal(input.OrderFile, model.OrderFile);
+            Assert.Null(model.RelatedOrders);
+
+            Assert.Empty(modelState);
+            Assert.Equal(ModelValidationState.Valid, modelState.ValidationState);
+        }
+
+        private class Order12
+        {
+            public int Id { get; set; }
+
+            public byte[] OrderFile { get; set; }
+
+            public IList<Order12> RelatedOrders { get; set; }
         }
 
         private static void AssertRequiredError(string key, ModelError error)

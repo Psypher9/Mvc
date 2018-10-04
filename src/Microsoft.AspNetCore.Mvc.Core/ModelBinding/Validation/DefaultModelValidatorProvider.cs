@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace Microsoft.AspNetCore.Mvc.Internal
+namespace Microsoft.AspNetCore.Mvc
 {
     /// <summary>
     /// A default <see cref="IModelValidatorProvider"/>.
@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
     /// The <see cref="DefaultModelValidatorProvider"/> provides validators from <see cref="IModelValidator"/>
     /// instances in <see cref="ModelBinding.ModelMetadata.ValidatorMetadata"/>.
     /// </remarks>
-    public class DefaultModelValidatorProvider : IModelValidatorProvider
+    internal sealed class DefaultModelValidatorProvider : IDefaultModelValidatorProvider
     {
         /// <inheritdoc />
         public void CreateValidators(ModelValidatorProviderContext context)
@@ -28,8 +28,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                     continue;
                 }
 
-                var validator = validatorItem.ValidatorMetadata as IModelValidator;
-                if (validator != null)
+                if (validatorItem.ValidatorMetadata is IModelValidator validator)
                 {
                     validatorItem.Validator = validator;
                     validatorItem.IsReusable = true;
