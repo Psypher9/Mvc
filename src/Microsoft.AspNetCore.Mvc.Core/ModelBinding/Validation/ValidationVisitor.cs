@@ -265,8 +265,9 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation
                 CurrentPath.Pop(model);
                 return true;
             }
-            else if (!metadata.IsValidationRequired)
+            else if (metadata.HasValidators == false)
             {
+                // No validators will be created for this graph of objects. Mark it as valid if it wasn't previously validated.
                 var entries = ModelState.FindKeysWithPrefix(key);
                 foreach (var item in entries)
                 {

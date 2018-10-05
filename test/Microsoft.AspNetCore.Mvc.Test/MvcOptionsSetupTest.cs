@@ -252,7 +252,8 @@ namespace Microsoft.AspNetCore.Mvc
                 {
                     var excludeFilter = Assert.IsType<SuppressChildValidationMetadataProvider>(provider);
                     Assert.Equal(typeof(XmlNode).FullName, excludeFilter.FullTypeName);
-                });
+                },
+                provider => Assert.IsType<HasValidatorsValidationMetadataProvider>(provider));
         }
 
         private static T GetOptions<T>(Action<IServiceCollection> action = null)

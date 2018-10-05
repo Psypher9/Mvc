@@ -86,7 +86,7 @@ namespace Microsoft.AspNetCore.Mvc
 
         public void PostConfigure(string name, MvcOptions options)
         {
-            options.ModelMetadataDetailsProviders.Add(new RequiresValidationMetadataProvider(options.ModelValidatorProviders));
+            options.ModelMetadataDetailsProviders.Add(new HasValidatorsValidationMetadataProvider(options.ModelValidatorProviders));
         }
 
         internal static void ConfigureAdditionalModelMetadataDetailsProviders(IList<IMetadataDetailsProvider> modelMetadataDetailsProviders)

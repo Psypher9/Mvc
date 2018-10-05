@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.DataAnnotations.Internal;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations
     /// for attributes which derive from <see cref="ValidationAttribute"/>. It also provides
     /// a validator for types which implement <see cref="IValidatableObject"/>.
     /// </summary>
-    internal sealed class DataAnnotationsModelValidatorProvider : IDefaultModelValidatorProvider
+    internal sealed class DataAnnotationsModelValidatorProvider : IMetadataBasedModelValidatorProvider
     {
         private readonly IOptions<MvcDataAnnotationsLocalizationOptions> _options;
         private readonly IStringLocalizerFactory _stringLocalizerFactory;
@@ -98,6 +98,24 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations
                     IsReusable = true
                 });
             }
+        }
+
+        public bool HasValidators(Type modelType, IList<object> validatorMetadata)
+        {
+            if (typeof(IValidatableObject).IsAssignableFrom(modelType))
+            {
+                return true;
+            }
+
+            for (var i = 0; i < validatorMetadata.Count; i++)
+            {
+                if (validatorMetadata[i] is ValidationAttribute)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

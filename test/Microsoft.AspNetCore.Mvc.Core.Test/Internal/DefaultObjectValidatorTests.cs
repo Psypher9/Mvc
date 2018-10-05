@@ -1170,11 +1170,11 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             var modelState = actionContext.ModelState;
             var validationState = new ValidationStateDictionary();
 
-            var validator = CreateValidator(typeof(List<string>));
+            var validator = CreateValidator(typeof(List<ValidatedModel>));
 
-            var model = new List<string>()
+            var model = new List<ValidatedModel>()
             {
-                "15",
+                new ValidatedModel { Value = "15" },
             };
 
             modelState.SetModelValue("userIds[0]", "15", "15");
@@ -1190,6 +1190,12 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             var entry = modelState["userIds[0]"];
             Assert.Equal(ModelValidationState.Skipped, entry.ValidationState);
             Assert.Empty(entry.Errors);
+        }
+
+        private class ValidatedModel
+        {
+            [Required]
+            public string Value { get; set; }
         }
 
         [Fact]
@@ -1352,6 +1358,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
 
         private class ThrowingProperty
         {
+            [Required]
             public string WatchOut
             {
                 get
@@ -1520,6 +1527,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                 Depth = depth;
             }
 
+            [Range(-10, 400)]
             public int Depth { get; }
             public int MaxAllowedDepth { get; }
 

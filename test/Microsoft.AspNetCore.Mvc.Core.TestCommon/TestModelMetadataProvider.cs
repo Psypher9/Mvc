@@ -38,7 +38,8 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
 
             MvcCoreMvcOptionsSetup.ConfigureAdditionalModelMetadataDetailsProviders(detailsProviders);
 
-            detailsProviders.Add(new RequiresValidationMetadataProvider(usesDefaultValidatorProviders: true));
+            var validationProviders = TestModelValidatorProvider.CreateDefaultProvider();
+            detailsProviders.Add(new HasValidatorsValidationMetadataProvider(validationProviders.ValidatorProviders));
 
             var compositeDetailsProvider = new DefaultCompositeMetadataDetailsProvider(detailsProviders);
             return new DefaultModelMetadataProvider(compositeDetailsProvider, Options.Create(new MvcOptions()));
@@ -60,7 +61,8 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding
 
             detailsProviders.AddRange(providers);
 
-            detailsProviders.Add(new RequiresValidationMetadataProvider(usesDefaultValidatorProviders: true));
+            var validationProviders = TestModelValidatorProvider.CreateDefaultProvider();
+            detailsProviders.Add(new HasValidatorsValidationMetadataProvider(validationProviders.ValidatorProviders));
 
             var compositeDetailsProvider = new DefaultCompositeMetadataDetailsProvider(detailsProviders);
             return new DefaultModelMetadataProvider(compositeDetailsProvider, Options.Create(new MvcOptions()));
