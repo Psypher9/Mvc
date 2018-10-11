@@ -438,22 +438,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 {
                     var visited = new HashSet<DefaultModelMetadata>();
 
-                    if (TryCalculateHasValidators(visited, this, out var hasValidators))
-                    {
-                        _hasValidators = hasValidators;
-                    }
-                    else
-                    {
-                        // Assume validation is required by default.
-                        _hasValidators = true;
-                    }
+                    _hasValidators = CalculateHasValidators(visited, this);
                 }
 
                 return _hasValidators.Value;
             }
         }
 
-        internal static bool TryCalculateHasValidators(HashSet<DefaultModelMetadata> visited, ModelMetadata metadata, out bool hasValidators)
+        internal static bool CalculateHasValidators(HashSet<DefaultModelMetadata> visited, ModelMetadata metadata)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -461,7 +453,6 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
             {
                 // The calculation is valid only for DefaultModelMetadata instances. Null, other ModelMetadata instances
                 // or subtypes of DefaultModelMetadata will be treated as always requiring validation.
-                hasValidators = true;
                 return true;
             }
 
@@ -470,32 +461,33 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
             if (defaultModelMetadata._hasValidators.HasValue)
             {
                 // Return a previously calculated value if available.
-                hasValidators = defaultModelMetadata._hasValidators.Value;
-                return true;
+                return defaultModelMetadata._hasValidators.Value;
             }
 
             if (defaultModelMetadata.ValidationMetadata.HasValidators != false)
             {
                 // Either the ModelMetadata instance has some validators (HasValidators = true) or it is non-deterministic (HasValidators = null). 
-                // In either case, treat assume it has validators.
-                hasValidators = true;
+                // In either case, assume it has validators.
                 return true;
             }
 
             // Before inspecting properties or elements of a collection, ensure we do not have a cycle.
-            // In case of a cycle, a ModelMetadata instance at a different (likely closer to the root) level
-            // is already querying if the metadata has validators and will eventually resolve a value.
-            // We'll no-op at this level and let the other instance calculate the value.
+            // Consider a model like so
+            //
+            // Employee { BusinessDivision Division; int Id; string Name; }
+            // BusinessDivision { int Id; List<Employee> Employees }
+            //
+            // If we get to the Employee element from Employee.Division.Employees, we can return false for that instance
+            // and allow other properties of BusinessDivision and Employee to determine if it has validators.
             if (!visited.Add(defaultModelMetadata))
             {
-                hasValidators = default;
                 return false;
             }
 
             // We have inspected the current element. Inspect properties or elements that may contribute to this value.
             if (defaultModelMetadata.IsEnumerableType)
             {
-                if (TryCalculateHasValidators(visited, defaultModelMetadata.ElementMetadata, out hasValidators) && hasValidators)
+                if (CalculateHasValidators(visited, defaultModelMetadata.ElementMetadata))
                 {
                     return true;
                 }
@@ -504,17 +496,15 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
             {
                 foreach (var property in defaultModelMetadata.Properties)
                 {
-                    if (TryCalculateHasValidators(visited, property, out var propertyResult) && propertyResult)
+                    if (CalculateHasValidators(visited, property))
                     {
-                        hasValidators = propertyResult;
                         return true;
                     }
                 }
             }
 
             // We've come this far. The ModelMetadata does not have any validation
-            hasValidators = false;
-            return true;
+            return false;
         }
 
         /// <inheritdoc />

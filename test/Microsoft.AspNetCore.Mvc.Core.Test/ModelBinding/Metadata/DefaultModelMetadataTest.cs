@@ -910,52 +910,49 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
         }
 
         [Fact]
-        public void TryCalculateHasValidators_TypeWithoutProperties_TypeHasNoValidators()
+        public void CalculateHasValidators_TypeWithoutProperties_TypeHasNoValidators()
         {
             // Arrange
             var modelIdentity = ModelMetadataIdentity.ForType(typeof(string));
             var modelMetadata = CreateModelMetadata(modelIdentity, Mock.Of<IModelMetadataProvider>(), false);
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
-            Assert.True(result);
-            Assert.False(hasValidators);
+            Assert.False(result);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_SimpleType_TypeHasValidators()
+        public void CalculateHasValidators_SimpleType_TypeHasValidators()
         {
             // Arrange
             var modelIdentity = ModelMetadataIdentity.ForType(typeof(string));
             var modelMetadata = CreateModelMetadata(modelIdentity, Mock.Of<IModelMetadataProvider>(), true);
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_ReturnsTrue_SimpleType_TypeHasNonDeterministicValidators()
+        public void CalculateHasValidators_ReturnsTrue_SimpleType_TypeHasNonDeterministicValidators()
         {
             // Arrange
             var modelIdentity = ModelMetadataIdentity.ForType(typeof(string));
             var modelMetadata = CreateModelMetadata(modelIdentity, Mock.Of<IModelMetadataProvider>(), null);
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_TypeWithProperties_PropertyIsNotDefaultModelMetadata()
+        public void CalculateHasValidators_TypeWithProperties_PropertyIsNotDefaultModelMetadata()
         {
             // Arrange
             var modelType = typeof(TypeWithProperties);
@@ -972,15 +969,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Verifiable();
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_TypeWithProperties_HasValidatorForAnyPropertyIsTrue()
+        public void CalculateHasValidators_TypeWithProperties_HasValidatorForAnyPropertyIsTrue()
         {
             // Arrange
             var modelType = typeof(TypeWithProperties);
@@ -1000,15 +996,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Verifiable();
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_TypeWithProperties_HasValidatorsForPropertyIsNotDeterminstic()
+        public void CalculateHasValidators_TypeWithProperties_HasValidatorsForPropertyIsNotDeterminstic()
         {
             // Arrange
             var modelType = typeof(TypeWithProperties);
@@ -1025,15 +1020,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Verifiable();
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_TypeWithProperties_HasValidatorForAllPropertiesIsFalse()
+        public void CalculateHasValidators_TypeWithProperties_HasValidatorForAllPropertiesIsFalse()
         {
             // Arrange
             var modelType = typeof(TypeWithProperties);
@@ -1053,15 +1047,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Verifiable();
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
-            Assert.True(result);
-            Assert.False(hasValidators);
+            Assert.False(result);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_SelfReferencingType_HasValidatorOnNestedProperty()
+        public void CalculateHasValidators_SelfReferencingType_HasValidatorOnNestedProperty()
         {
             // Arrange
             var modelType = typeof(Employee);
@@ -1094,15 +1087,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Verifiable();
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_SelfReferencingType_HasValidatorOnSelfReferencedProperty()
+        public void CalculateHasValidators_SelfReferencingType_HasValidatorOnSelfReferencedProperty()
         {
             // Arrange
             var modelType = typeof(Employee);
@@ -1137,15 +1129,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Returns(modelMetadata);
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_CollectionElementHasValidators()
+        public void CalculateHasValidators_CollectionElementHasValidators()
         {
             // Arrange
             var modelType = typeof(Employee);
@@ -1167,15 +1158,14 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Returns(CreateModelMetadata(modelIdentity, metadataProvider.Object, true)); // Employees.Employee has validators
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
             Assert.True(result);
-            Assert.True(hasValidators);
         }
 
         [Fact]
-        public void TryCalculateHasValidators_SelfReferencingType_NoValidatorsInGraph()
+        public void CalculateHasValidators_SelfReferencingType_NoValidatorsInGraph()
         {
             // Arrange
             var modelType = typeof(Employee);
@@ -1210,11 +1200,10 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
                 .Returns(modelMetadata);
 
             // Act
-            var result = DefaultModelMetadata.TryCalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata, out var hasValidators);
+            var result = DefaultModelMetadata.CalculateHasValidators(new HashSet<DefaultModelMetadata>(), modelMetadata);
 
             // Assert
-            Assert.True(result);
-            Assert.False(hasValidators);
+            Assert.False(result);
         }
 
         private static DefaultModelMetadata CreateModelMetadata(
