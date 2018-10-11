@@ -217,7 +217,7 @@ namespace Microsoft.AspNetCore.Mvc.Formatters
         /// Any modifications to the <see cref="JsonSerializerSettings"/> object after this
         /// <see cref="JsonInputFormatter"/> has been used will have no effect.
         /// </remarks>
-        protected JsonSerializerSettings SerializerSettings { get; }
+        protected internal JsonSerializerSettings SerializerSettings { get; }
 
         /// <inheritdoc />
         public override async Task<InputFormatterResult> ReadRequestBodyAsync(

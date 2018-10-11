@@ -61,7 +61,7 @@ namespace Microsoft.AspNetCore.Mvc.Formatters
         /// Any modifications to the <see cref="JsonSerializerSettings"/> object after this
         /// <see cref="JsonOutputFormatter"/> has been used will have no effect.
         /// </remarks>
-        protected JsonSerializerSettings SerializerSettings { get; }
+        protected internal JsonSerializerSettings SerializerSettings { get; }
 
         /// <summary>
         /// Gets the <see cref="JsonSerializerSettings"/> used to configure the <see cref="JsonSerializer"/>.

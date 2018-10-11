@@ -4,19 +4,19 @@
 using System;
 using System.Buffers;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc.Formatters.Json.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.AspNetCore.Mvc.Formatters.Json.Internal
+namespace Microsoft.AspNetCore.Mvc.Formatters.Json
 {
     /// <summary>
     /// Sets up JSON formatter options for <see cref="MvcOptions"/>.
     /// </summary>
-    public class MvcJsonMvcOptionsSetup : IConfigureOptions<MvcOptions>
+    internal sealed class MvcJsonMvcOptionsSetup : IConfigureOptions<MvcOptions>
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly MvcJsonOptions _jsonOptions;
@@ -57,6 +57,15 @@ namespace Microsoft.AspNetCore.Mvc.Formatters.Json.Internal
 
         public void Configure(MvcOptions options)
         {
+            options.OnAfterPostConfigure += option =>
+            {
+                if (options.AllowRfc7807CompliantProblemDetailsFormat)
+                {
+                    _jsonOptions.SerializerSettings.Converters.Add(new ProblemDetailsConverter());
+                    _jsonOptions.SerializerSettings.Converters.Add(new ValidationProblemDetailsConverter());
+                }
+            };
+
             options.OutputFormatters.Add(new JsonOutputFormatter(_jsonOptions.SerializerSettings, _charPool));
 
             // Register JsonPatchInputFormatter before JsonInputFormatter, otherwise

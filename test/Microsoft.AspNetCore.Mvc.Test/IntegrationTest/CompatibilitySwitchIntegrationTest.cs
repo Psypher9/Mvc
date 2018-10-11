@@ -50,6 +50,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTest
             Assert.True(apiBehaviorOptions.SuppressMapClientErrors);
             Assert.True(razorViewEngineOptions.AllowRecompilingViewsOnFileChange);
             Assert.False(razorPagesOptions.AllowDefaultHandlingForOptionsRequests);
+            Assert.False(mvcOptions.AllowRfc7807CompliantProblemDetailsFormat);
         }
 
         [Fact]
@@ -82,6 +83,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTest
             Assert.True(apiBehaviorOptions.SuppressMapClientErrors);
             Assert.True(razorViewEngineOptions.AllowRecompilingViewsOnFileChange);
             Assert.False(razorPagesOptions.AllowDefaultHandlingForOptionsRequests);
+            Assert.False(mvcOptions.AllowRfc7807CompliantProblemDetailsFormat);
         }
 
         [Fact]
@@ -114,6 +116,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTest
             Assert.False(apiBehaviorOptions.SuppressMapClientErrors);
             Assert.False(razorViewEngineOptions.AllowRecompilingViewsOnFileChange);
             Assert.True(razorPagesOptions.AllowDefaultHandlingForOptionsRequests);
+            Assert.True(mvcOptions.AllowRfc7807CompliantProblemDetailsFormat);
         }
 
         [Fact]
@@ -146,6 +149,7 @@ namespace Microsoft.AspNetCore.Mvc.IntegrationTest
             Assert.False(apiBehaviorOptions.SuppressMapClientErrors);
             Assert.False(razorViewEngineOptions.AllowRecompilingViewsOnFileChange);
             Assert.True(razorPagesOptions.AllowDefaultHandlingForOptionsRequests);
+            Assert.True(mvcOptions.AllowRfc7807CompliantProblemDetailsFormat);
         }
 
         // This just does the minimum needed to be able to resolve these options.

@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Mvc.Formatters.Xml.Internal
         public void AddsFormatterMapping()
         {
             // Arrange
-            var optionsSetup = new MvcXmlSerializerMvcOptionsSetup(NullLoggerFactory.Instance);
+            var optionsSetup = new XmlSerializerMvcOptionsSetup(NullLoggerFactory.Instance);
             var options = new MvcOptions();
 
             // Act
@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc.Formatters.Xml.Internal
         public void DoesNotOverrideExistingMapping()
         {
             // Arrange
-            var optionsSetup = new MvcXmlSerializerMvcOptionsSetup(NullLoggerFactory.Instance);
+            var optionsSetup = new XmlSerializerMvcOptionsSetup(NullLoggerFactory.Instance);
             var options = new MvcOptions();
             options.FormatterMappings.SetMediaTypeMappingForFormat("xml", "text/xml");
 

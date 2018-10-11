@@ -38,10 +38,17 @@ namespace Microsoft.AspNetCore.Mvc.Infrastructure
 
                     // Matches JsonSerializerSettingsProvider.DefaultMaxDepth
                     values[nameof(MvcOptions.MaxValidationDepth)] = 32;
+                    values[nameof(MvcOptions.AllowRfc7807CompliantProblemDetailsFormat)] = true;
                 }
 
                 return values;
             }
+        }
+
+        public override void PostConfigure(string name, MvcOptions options)
+        {
+            base.PostConfigure(name, options);
+            options.InvokeOnAfterPostConfigure();
         }
     }
 }
